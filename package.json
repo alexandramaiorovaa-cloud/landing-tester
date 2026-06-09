@@ -1,0 +1,12 @@
+{
+  "name": "landing-tester-runner",
+  "version": "1.0.0",
+  "description": "Playwright-скрипт для тестирования лендингов и пэйволов",
+  "scripts": {
+    "test": "node test.js",
+    "install-browsers": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}

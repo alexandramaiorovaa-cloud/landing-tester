@@ -1,0 +1,99 @@
+=== LandingTester · 09.06.2026, 17:40:00 ===
+URL: https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588
+Device: chromium
+
+→ Профиль селекторов: Кинопоиск Гифт
+→ URL: https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588
+→ Аккаунт: yndx-alexandra-mai-j69wfs@ya.ru [novice]
+→ Карта: ************1497 · sms
+→ Устройство: chromium
+→ Открываем с _ym_debug=2: https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588&_ym_debug=2
+✓ Метрика: Form goal. Counter 89756230. Init.
+✓ Метрика(CDP): Form goal. Counter 89756230. Init.
+✓ Метрика: Form goal. Counter 94649643. Init.
+✓ Метрика(CDP): Form goal. Counter 94649643. Init.
+✓ Метрика: Button goal. Counter 54321510. Init.
+✓ Метрика(CDP): Button goal. Counter 54321510. Init.
+✓ Метрика: Form goal. Counter 54321510. Init.
+✓ Метрика(CDP): Form goal. Counter 54321510. Init.
+✓ Метрика: Form goal. Counter 73489426. Init.
+✓ Страница загружена
+→ Поп-ап не обнаружен — продолжаем
+✓ Метрика: Button goal. Counter 54321510. Button: ?p=AAAA1AA&c=3965571462.
+✓ Метрика(CDP): Button goal. Counter 54321510. Button: ?p=AAAA1AA&c=3965571462.
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  Object
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  Object
+✓ Клик по CTA: div.sign-in__button.button
+→ Авторизация Яндекс ID...
+✓ Открыто меню «Ещё»
+✓ Клик «Войти по логину»
+✓ email: yndx-alexandra-mai-j69wfs@ya.ru
+✓ Клик «Войти»
+✓ Пароль введён
+✓ Клик «Далее»
+→ Ждём завершения авторизации...
+✓ Метрика: session is correct, retpath: https://sso.passport.yandex.ru/prepare?uuid=a2f7b570-0734-49ee-a07d-b28
+✓ Метрика(CDP): session is correct, retpath: https://sso.passport.yandex.ru/prepare?uuid=a2f7b570-0734-49ee-a07d-b28
+✓ Метрика: redirectToRetpathOrFinishAmAction: https://sso.passport.yandex.ru/prepare?uuid=a2f7b570-0734-49ee-a0
+✓ Метрика(CDP): redirectToRetpathOrFinishAmAction: https://sso.passport.yandex.ru/prepare?uuid=a2f7b570-0734-49ee-a0
+✓ Метрика: Button goal. Counter 54321510. Init.
+✓ Метрика(CDP): Button goal. Counter 54321510. Init.
+✓ Метрика: Form goal. Counter 54321510. Init.
+✓ Метрика(CDP): Form goal. Counter 54321510. Init.
+✓ Метрика: Form goal. Counter 94649643. Init.
+✓ Метрика(CDP): Form goal. Counter 94649643. Init.
+✓ Метрика: Form goal. Counter 89756230. Init.
+✓ Метрика(CDP): Form goal. Counter 89756230. Init.
+✓ Авторизация успешна — вернулись на: https://www.kinopoisk.ru/special/new/
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: AUTH_SUCCESS. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: AUTH_SUCCESS. Params:  Object
+✓ Метрика: Form goal. Counter 73489426. Init.
+→ Кнопка найдена в payment-widget iframe
+→ activateEl найден: да
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: click-promocode. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: click-promocode. Params:  Object
+✓ Метрика: Reach goal. Counter: 54321510. Goal id: click-promocode
+✓ Метрика(CDP): Reach goal. Counter: 54321510. Goal id: click-promocode
+✓ Клик «Активировать»
+→ H1 не проверяется для этого лендинга
+✓ Персональных посадок нет
+✓ Битых картинок нет
+✓ Найдено событий Метрики: 34
+→ CTA не требуется для этого лендинга
+✓ Виджет открылся
+→ Все фреймы в блоке 4:
+→   https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL5
+→   about:blank
+→   https://yastatic.net/s3/kinopoisk-frontend/hd-www/release/gtm_v2.html?container=
+→   https://payment-widget.plus.kinopoisk.ru/?crossSessionId=685d703e-ac82-4bbc-b1aa
+→   
+→   https://trust.yandex.ru/web/tokenize?operation_id=verification_intent_6a2809ba79
+→   https://diehard.yandex.ru/card-form/dieharder/form.html?service_token=union_medi
+✓ Найден iframe diehard: https://diehard.yandex.ru/card-form/dieharder/form.html?serv
+✓ Номер карты введён
+✓ Месяц: 05
+✓ Год: 36
+✓ CVC введён
+✓ Клик «Подключить»
+→ Введите SMS-код вручную на сайте...
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: TRIAL_COMBO_HD+AT. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: TRIAL_COMBO_HD+AT. Params:  Object
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: gift_activate_success. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: gift_activate_success. Params:  Object
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: promocode-activated. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: promocode-activated. Params:  Object
+✓ Метрика: Reach goal. Counter: 54321510. Goal id: promocode-activated
+✓ Метрика(CDP): Reach goal. Counter: 54321510. Goal id: promocode-activated
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: promocode_purch_tarif. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: promocode_purch_tarif. Params:  Object
+✓ Оплата подтверждена — появился экран опции
+✓ Виджет закрыт автоматически после оплаты
+→ Опция найдена в payment-widget iframe
+✓ Клик «Попробовать» на опции
+✓ Подписка оформлена ✓
+✓ Прошли: 14  Предупреждения: 0  Упали: 0
+→ Скриншот сохранён: logs/2026-06-09T12-40-00_www_kinopoisk_ru_special_new__type_cpa_k.png
+
+=== Конец прогона · Прошли: 14 Предупреждения: 0 Упали: 0 ===

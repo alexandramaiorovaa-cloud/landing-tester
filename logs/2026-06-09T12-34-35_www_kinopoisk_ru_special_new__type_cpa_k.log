@@ -1,0 +1,81 @@
+=== LandingTester · 09.06.2026, 17:34:35 ===
+URL: https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588
+Device: chromium
+
+→ Профиль селекторов: Кинопоиск Гифт
+→ URL: https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588
+→ Аккаунт: yndx-alexandra-mai-szyiur@ya.ru [novice]
+→ Карта: ************1497 · oneclick
+→ Устройство: chromium
+→ Открываем с _ym_debug=2: https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588&_ym_debug=2
+✓ Метрика: Form goal. Counter 89756230. Init.
+✓ Метрика(CDP): Form goal. Counter 89756230. Init.
+✓ Метрика: Button goal. Counter 54321510. Init.
+✓ Метрика(CDP): Button goal. Counter 54321510. Init.
+✓ Метрика: Form goal. Counter 54321510. Init.
+✓ Метрика(CDP): Form goal. Counter 54321510. Init.
+✓ Метрика: Form goal. Counter 94649643. Init.
+✓ Метрика(CDP): Form goal. Counter 94649643. Init.
+✓ Метрика: Form goal. Counter 73489426. Init.
+✓ Страница загружена
+→ Поп-ап требует авторизацию
+→ Поп-ап нельзя закрыть — авторизуемся через него
+✓ Метрика: Button goal. Counter 54321510. Button: ?p=AAAA2AA&c=3965571462.
+✓ Метрика(CDP): Button goal. Counter 54321510. Button: ?p=AAAA2AA&c=3965571462.
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  Object
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: AUTH_FORM_OPEN. Params:  Object
+✓ Клик «Войти» в поп-апе
+→ Авторизация Яндекс ID...
+✓ Открыто меню «Ещё»
+✓ Клик «Войти по логину»
+✓ email: yndx-alexandra-mai-szyiur@ya.ru
+✓ Клик «Войти»
+✓ Пароль введён
+✓ Клик «Далее»
+→ Ждём завершения авторизации...
+✓ Метрика: session is correct, retpath: https://sso.passport.yandex.ru/prepare?uuid=78abc642-2feb-4695-962a-9e2
+✓ Метрика(CDP): session is correct, retpath: https://sso.passport.yandex.ru/prepare?uuid=78abc642-2feb-4695-962a-9e2
+✓ Метрика: redirectToRetpathOrFinishAmAction: https://sso.passport.yandex.ru/prepare?uuid=78abc642-2feb-4695-96
+✓ Метрика(CDP): redirectToRetpathOrFinishAmAction: https://sso.passport.yandex.ru/prepare?uuid=78abc642-2feb-4695-96
+✓ Метрика: Form goal. Counter 89756230. Init.
+✓ Метрика(CDP): Form goal. Counter 89756230. Init.
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: AUTH_SUCCESS. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: AUTH_SUCCESS. Params:  Object
+✓ Авторизация успешна — вернулись на: https://www.kinopoisk.ru/special/new/
+✓ Метрика: Form goal. Counter 73489426. Init.
+→ Кнопка найдена в payment-widget iframe
+→ activateEl найден: да
+✓ Метрика: Reach goal. Counter: 48924740. Goal id: click-promocode. Params:  {}
+✓ Метрика(CDP): Reach goal. Counter: 48924740. Goal id: click-promocode. Params:  Object
+✓ Метрика: Reach goal. Counter: 54321510. Goal id: click-promocode
+✓ Метрика(CDP): Reach goal. Counter: 54321510. Goal id: click-promocode
+✓ Клик «Активировать»
+→ H1 не проверяется для этого лендинга
+✓ Персональных посадок нет
+✓ Битых картинок нет
+✓ Найдено событий Метрики: 28
+→ CTA не требуется для этого лендинга
+✓ Виджет открылся
+→ Все фреймы в блоке 4:
+→   https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL5
+→   about:blank
+→   https://yastatic.net/s3/kinopoisk-frontend/hd-www/release/gtm_v2.html?container=
+→   https://payment-widget.plus.kinopoisk.ru/?crossSessionId=90e48c53-3637-413c-82da
+→   
+→   https://trust.yandex.ru/web/tokenize?operation_id=verification_intent_6a28087448
+→   https://diehard.yandex.ru/card-form/dieharder/form.html?service_token=union_medi
+✓ Найден iframe diehard: https://diehard.yandex.ru/card-form/dieharder/form.html?serv
+✓ Номер карты введён
+✓ Месяц: 05
+✓ Год: 36
+✓ CVC введён
+✓ Клик «Подключить»
+✓ Виджет закрыт автоматически после оплаты
+→ Экран с опцией не появился — проверяем экран почты
+✓ Подписка оформлена ✓
+✓ Прошли: 13  Предупреждения: 0  Упали: 0
+→ Скриншот сохранён: logs/2026-06-09T12-34-35_www_kinopoisk_ru_special_new__type_cpa_k.png
+
+=== Конец прогона · Прошли: 13 Предупреждения: 0 Упали: 0 ===
