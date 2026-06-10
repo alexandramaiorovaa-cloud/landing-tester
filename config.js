@@ -1,27 +1,24 @@
 // config.js — настройки теста
 
 module.exports = {
-
-  landingUrl: '',
-  ctaText:    '',
-
-  // 'chromium' | 'yandex' | 'iphone' | 'pixel'
+  landingUrl: 'https://example.com',
   device: 'chromium',
-
   account: {
     login:     '',
     email:     '',
     password:  '',
-    loginMode: 'email',  // 'login' (логин/username) | 'email' (почта)
+    loginMode: 'email',
     type:      'novice',
   },
-
   card: {
-    number:   '2200702165123337',
-    expiry:   '05/78',
-    cvc:      '123',
-    scenario: 'sms', //'sms' //'oneclick'
+    number:   '',
+    expiry:   '',
+    cvc:      '',
+    scenario: 'sms',
   },
+  checkYmGoal: true,
+  slowMo: 400,
+};
 
   // ─── Селекторы (опционально) ───────────────────────────────────────────
   // Если не заданы — скрипт определяет автоматически.
