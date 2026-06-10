@@ -145,3 +145,5 @@ vite.config.ts.timestamp-*
 logs/
 *.png
 error-*.png
+
+config.js
