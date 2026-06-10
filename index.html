@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LandingTester</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0c0f;--bg2:#121217;--bg3:#1a1a22;--bg4:#22222e;--line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.12);--text:#e8e8f0;--muted:#6b6b80;--faint:#3a3a4a;--accent:#7c6aff;--green:#22d3a3;--red:#ff5757;--amber:#f59e0b;--blue:#60a5fa;--font-head:'Syne',sans-serif;--font-mono:'DM Mono',monospace;--r:10px;--r2:6px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,106,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(124,106,255,.03)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.shell{display:grid;grid-template-columns:240px 1fr;grid-template-rows:52px 1fr;min-height:100vh;position:relative;z-index:1}
+
+/* TOPBAR */
+.topbar{grid-column:1/-1;display:flex;align-items:center;border-bottom:1px solid var(--line);background:rgba(12,12,15,.96);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;height:52px}
+.topbar-brand{display:flex;align-items:center;gap:10px;padding:0 20px;width:240px;border-right:1px solid var(--line);height:100%;flex-shrink:0}
+.brand-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-family:var(--font-head);font-weight:800}
+.brand-name{font-family:var(--font-head);font-weight:700;font-size:15px}
+.brand-tag{font-size:10px;color:var(--muted)}
+.topbar-mid{flex:1;display:flex;align-items:center;padding:0 16px}
+.url-display{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-actions{display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0}
+.run-status{display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.run-status.active{display:flex}
+.dot-spin{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:32px;border-radius:var(--r2);font-family:var(--font-mono);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;border:none}
+.btn-ghost{background:transparent;border:1px solid var(--line2);color:var(--muted)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);border-color:var(--faint)}
+.btn-primary{background:var(--accent);color:#fff;font-weight:500}
+.btn-primary:hover{background:#9070ff}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--line);padding:16px 0;background:var(--bg);display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.nav-section{padding:12px 16px 4px;font-size:10px;font-weight:500;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-head)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{color:var(--text);background:var(--bg3)}
+.nav-item.active{color:var(--text);background:var(--bg3);border-left-color:var(--accent)}
+.ni-icon{font-size:15px;width:18px;text-align:center}
+.ni-count{margin-left:auto;font-size:10px;background:var(--bg4);color:var(--muted);padding:1px 6px;border-radius:20px}
+.ni-count.bad{background:rgba(255,87,87,.15);color:var(--red)}
+.sidebar-bottom{margin-top:auto;padding:12px 16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.sidebar-bottom strong{color:var(--text);font-weight:500}
+
+/* MAIN */
+.main{overflow-y:auto;background:var(--bg)}
+.page{display:none;padding:28px;flex-direction:column;gap:20px}
+.page.active{display:flex}
+.page.active>*{animation:fadeUp .25s ease both}
+.page.active>*:nth-child(1){animation-delay:.03s}
+.page.active>*:nth-child(2){animation-delay:.07s}
+.page.active>*:nth-child(3){animation-delay:.11s}
+.page.active>*:nth-child(4){animation-delay:.15s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--card-accent,var(--faint));opacity:.6}
+.sc-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.sc-val{font-family:var(--font-head);font-size:32px;font-weight:700;line-height:1;color:var(--card-color,var(--text))}
+.sc-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.stat-green{--card-accent:var(--green);--card-color:var(--green)}
+.stat-red{--card-accent:var(--red);--card-color:var(--red)}
+.stat-amber{--card-accent:var(--amber);--card-color:var(--amber)}
+.stat-blue{--card-accent:var(--blue);--card-color:var(--blue)}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.card-head h3{font-family:var(--font-head);font-size:13px;font-weight:600;letter-spacing:.01em}
+.card-body{padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+
+/* PROGRESS */
+.main-progress{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.main-prog-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.main-prog-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s ease}
+.main-prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.prog-suite-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:var(--r2);font-size:12px;border:1px solid transparent;transition:background .2s}
+.prog-suite-row.running{background:rgba(124,106,255,.08);border-color:rgba(124,106,255,.2)}
+.prog-name{flex:1;color:var(--text)}
+.prog-count{color:var(--muted);font-size:11px;min-width:44px;text-align:right}
+.prog-bar-wrap{height:2px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.prog-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s ease}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;font-family:var(--font-head);letter-spacing:.02em;white-space:nowrap}
+.badge-pass{background:rgba(34,211,163,.12);color:var(--green)}
+.badge-fail{background:rgba(255,87,87,.12);color:var(--red)}
+.badge-run{background:rgba(124,106,255,.15);color:#a89dff}
+.badge-idle{background:var(--bg4);color:var(--muted)}
+.badge-skip{background:var(--bg4);color:var(--muted)}
+.badge-warn{background:rgba(245,158,11,.12);color:var(--amber)}
+.chip{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:20px;background:var(--bg4);color:var(--muted);font-family:var(--font-head);font-weight:500}
+
+/* RESULTS */
+.test-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--r2);font-size:12px;transition:background .1s}
+.test-row:hover{background:var(--bg3)}
+.tr-name{flex:1;color:var(--text)}
+.tr-browser{font-size:11px;color:var(--muted);min-width:70px}
+.tr-dur{font-size:11px;color:var(--muted);min-width:44px;text-align:right}
+.suite-label{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;padding:8px 10px 4px;font-family:var(--font-head)}
+
+/* SNAPSHOTS */
+.snap-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.snap-card{background:var(--bg3);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.snap-head{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}
+.snap-preview{height:110px;display:flex;align-items:center;justify-content:center;position:relative;background:var(--bg4)}
+.diff-tag{position:absolute;bottom:8px;right:8px;font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--font-head);font-weight:600}
+.diff-ok{background:rgba(34,211,163,.15);color:var(--green)}
+.diff-fail{background:rgba(255,87,87,.15);color:var(--red)}
+
+/* VITALS */
+.vital-card{background:var(--bg3);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.vital-name{font-size:11px;color:var(--muted);margin-bottom:6px}
+.vital-val{font-family:var(--font-head);font-size:26px;font-weight:700}
+.vgood{color:var(--green)} .vwarn{color:var(--amber)} .vbad{color:var(--red)}
+.vital-bar{height:3px;background:var(--bg4);border-radius:2px;margin-top:8px;overflow:hidden}
+.vital-fill{height:100%;border-radius:2px}
+.vfgood{background:var(--green)} .vfwarn{background:var(--amber)} .vfbad{background:var(--red)}
+.vital-desc{font-size:10px;color:var(--muted);margin-top:5px}
+
+/* CONFIG */
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cfg-field{display:flex;flex-direction:column;gap:6px}
+.cfg-field label{font-size:11px;color:var(--muted);font-family:var(--font-head);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.cfg-field input,.cfg-field select{background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color .2s;width:100%}
+.cfg-field input:focus,.cfg-field select:focus{border-color:var(--accent)}
+.cfg-field select option{background:var(--bg3)}
+.toggle-list{display:flex;flex-direction:column}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.toggle-row:last-child{border-bottom:none}
+.tr-info{display:flex;flex-direction:column;gap:2px}
+.tr-info strong{font-size:13px;color:var(--text);font-weight:400;font-family:var(--font-mono)}
+.tr-info small{font-size:11px;color:var(--muted)}
+.switch{position:relative;width:36px;height:20px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.sw-track{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--line2);border-radius:10px;cursor:pointer;transition:.2s}
+.switch input:checked+.sw-track{background:var(--accent);border-color:var(--accent)}
+.sw-track::after{content:'';position:absolute;width:14px;height:14px;top:2px;left:2px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+.sw-track::after{transform:translateX(16px)}
+
+/* CHECKLIST */
+.cl-cat{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;padding:10px 0 4px;font-family:var(--font-head)}
+.cl-group{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.cl-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r2);font-size:12px;background:var(--bg3);border:1px solid var(--line);transition:background .1s}
+.cl-item:hover{background:var(--bg4)}
+.cl-dot{width:16px;height:16px;border:1px solid var(--faint);border-radius:3px;flex-shrink:0;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.cl-dot.pass{background:var(--accent);border-color:var(--accent);color:#fff}
+.cl-dot.fail{background:rgba(255,87,87,.2);border-color:var(--red);color:var(--red)}
+.cl-text{flex:1;color:var(--text);line-height:1.5}
+.cl-auto{font-size:10px;color:var(--accent);margin-left:4px}
+.cl-note{background:transparent;border:none;border-bottom:1px solid var(--faint);color:var(--muted);font-family:var(--font-mono);font-size:11px;outline:none;width:130px;padding:1px 4px;transition:all .2s}
+.cl-note:focus{border-color:var(--accent);color:var(--text)}
+.cl-btns{display:flex;gap:5px;flex-shrink:0}
+.cl-btn{font-size:10px;padding:2px 7px;border-radius:4px;border:none;cursor:pointer;font-family:var(--font-head);font-weight:600}
+.cl-ok{background:rgba(34,211,163,.12);color:var(--green)}
+.cl-ok:hover{background:rgba(34,211,163,.25)}
+.cl-ng{background:rgba(255,87,87,.12);color:var(--red)}
+.cl-ng:hover{background:rgba(255,87,87,.25)}
+.cl-summary{display:flex;gap:8px;align-items:center;padding:10px 0 0;border-top:1px solid var(--line);margin-top:4px}
+
+/* GOALS */
+#goals-table tbody tr{border-bottom:1px solid var(--line)}
+#goals-table tbody tr:hover{background:var(--bg3)}
+#goals-table td{padding:9px 14px;vertical-align:middle}
+.goal-name{font-family:var(--font-mono);font-size:11px;color:var(--accent);background:rgba(124,106,255,.08);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.goal-none{font-family:var(--font-mono);font-size:11px;color:var(--faint);font-style:italic}
+.goal-url{font-family:var(--font-mono);font-size:10px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.goal-url:hover{color:var(--blue)}
+.goal-btn{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-family:var(--font-head);font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.goal-btn.idle{background:var(--bg4);color:var(--muted)}
+.goal-btn.pass{background:rgba(34,211,163,.15);color:var(--green)}
+.goal-btn.fail{background:rgba(255,87,87,.15);color:var(--red)}
+.goal-note{background:transparent;border:none;border-bottom:1px solid var(--faint);color:var(--muted);font-family:var(--font-mono);font-size:11px;outline:none;width:100%;padding:2px 4px}
+.goal-note:focus{border-color:var(--accent);color:var(--text)}
+.gf-active{background:var(--bg3);color:var(--text);border-color:var(--line2)}
+
+/* LOG */
+.log-area{background:var(--bg);border-radius:var(--r2);padding:14px;font-family:var(--font-mono);font-size:12px;line-height:1.8;max-height:440px;overflow-y:auto;border:1px solid var(--line)}
+.ll-ok{color:var(--green)} .ll-err{color:var(--red)} .ll-info{color:#a89dff} .ll-muted{color:var(--faint)} .ll-warn{color:var(--amber)}
+.ll-ts{color:var(--faint);margin-right:6px}
+
+/* QA */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qa-btn{display:flex;flex-direction:column;gap:3px;padding:12px 14px;background:var(--bg3);border:1px solid var(--line);border-radius:var(--r2);cursor:pointer;transition:all .15s;text-align:left;font-family:var(--font-mono)}
+.qa-btn:hover{background:var(--bg4)}
+.qa-btn strong{font-size:12px;color:var(--text);font-weight:400}
+.qa-btn span{font-size:11px;color:var(--muted)}
+
+/* SCHEDULE */
+.sch-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.sch-row:last-child{border-bottom:none}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:32px;color:var(--muted);font-size:12px}
+.es-icon{font-size:28px;margin-bottom:8px;opacity:.4}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px}
+/* SMS MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r);padding:28px;width:360px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.modal-icon{font-size:28px;text-align:center}
+.modal-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);text-align:center}
+.modal-desc{font-size:12px;color:var(--muted);text-align:center;line-height:1.7}
+.modal-input{background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r2);padding:12px 14px;color:var(--text);font-family:var(--font-mono);font-size:18px;outline:none;width:100%;text-align:center;letter-spacing:.2em;transition:border-color .2s}
+.modal-input:focus{border-color:var(--accent)}
+.modal-actions{display:flex;gap:8px}
+.modal-actions .btn{flex:1;justify-content:center}
+.modal-timer{font-size:11px;color:var(--muted);text-align:center}
+.modal-timer span{color:var(--amber);font-weight:500}/* SNAPSHOT UPLOAD */
+.snap-upload-card{background:var(--bg3);border:1px dashed var(--faint);border-radius:var(--r2);overflow:hidden;transition:border-color .2s}
+.snap-upload-card.has-image{border-style:solid;border-color:var(--line2)}
+.snap-upload-card.dragover{border-color:var(--accent);background:rgba(124,106,255,.06)}
+.snap-upload-head{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);gap:8px}
+.snap-upload-head input{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-mono);font-size:11px;flex:1;min-width:0}
+.snap-preview-area{height:180px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden;background:var(--bg4)}
+.snap-preview-area img{width:100%;height:100%;object-fit:cover;display:block}
+.snap-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--faint);font-size:12px;pointer-events:none}
+.snap-placeholder-icon{font-size:28px;opacity:.4}
+.snap-status-row{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--line);align-items:center}
+.snap-status-btn{font-size:10px;padding:2px 8px;border-radius:20px;border:none;cursor:pointer;font-family:var(--font-head);font-weight:600}
+.snap-ok{background:rgba(34,211,163,.12);color:var(--green)}
+.snap-ok:hover{background:rgba(34,211,163,.25)}
+.snap-ng{background:rgba(255,87,87,.12);color:var(--red)}
+.snap-ng:hover{background:rgba(255,87,87,.25)}
+.snap-clr{background:var(--bg4);color:var(--muted)}
+.snap-clr:hover{background:var(--faint);color:var(--text)}
+.snap-note{flex:1;background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.snap-note:focus{color:var(--text)}
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">LT</div>
+    <div><div class="brand-name">LandingTester</div><div class="brand-tag">v2.0 · Playwright</div></div>
+  </div>
+  <div class="topbar-mid">
+    <span class="url-display" id="url-display">Введите URL в Конфигурации</span>
+  </div>
+  <div class="topbar-actions">
+    <div class="run-status" id="run-status"><div class="dot-spin"></div><span id="run-status-text">Запуск...</span></div>
+    <button class="btn btn-ghost" onclick="resetAll()">Сбросить</button>
+    <button class="btn btn-primary" id="btn-run" onclick="runTests()">▶ Запустить</button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="nav-section">Обзор</div>
+  <div class="nav-item active" onclick="nav('dashboard',this)"><span class="ni-icon">◈</span>Дашборд</div>
+  <div class="nav-item" onclick="nav('results',this)"><span class="ni-icon">≡</span>Результаты<span class="ni-count" id="nc-results">0</span></div>
+  <div class="nav-item" onclick="nav('visual',this)"><span class="ni-icon">⊡</span>Визуальный diff</div>
+  <div class="nav-item" onclick="nav('goals',this)"><span class="ni-icon">◉</span>Цели Метрики<span class="ni-count" id="nc-goals">0</span></div>
+  <div class="nav-item" onclick="nav('checklist',this)"><span class="ni-icon">☑</span>Чек-лист<span class="ni-count" id="nc-cl">0</span></div>
+  <div class="nav-section">Управление</div>
+  <div class="nav-item" onclick="nav('config',this)"><span class="ni-icon">⊙</span>Конфигурация</div>
+  <div class="nav-item" onclick="nav('schedule',this)"><span class="ni-icon">◷</span>Расписание</div>
+  <div class="nav-item" onclick="nav('log',this)"><span class="ni-icon">▤</span>Лог запуска<span class="ni-count bad" id="nc-log">0</span></div>
+  <div class="sidebar-bottom">
+    <div>Последний прогон</div><strong id="last-run-time">—</strong>
+    <div style="margin-top:6px">Ошибок: <strong id="last-run-fails" style="color:var(--red)">—</strong></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="stats-row">
+    <div class="stat-card stat-green"><div class="sc-label">Прошли</div><div class="sc-val" id="s-pass">—</div><div class="sc-sub">из <span id="s-total">0</span> шагов</div></div>
+    <div class="stat-card stat-red"><div class="sc-label">Упали</div><div class="sc-val" id="s-fail">—</div><div class="sc-sub">требуют внимания</div></div>
+    <div class="stat-card stat-amber"><div class="sc-label">Время прогона</div><div class="sc-val" id="s-time">—</div><div class="sc-sub">секунд</div></div>
+    <div class="stat-card stat-blue"><div class="sc-label">Браузеров</div><div class="sc-val" id="s-browsers">—</div><div class="sc-sub">параллельно</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Прогресс выполнения</h3><span class="chip" id="prog-chip">Не запущено</span></div>
+    <div class="card-body">
+      <div class="main-progress">
+        <div class="main-prog-label"><span id="prog-text">0 шагов</span><span id="prog-pct">0%</span></div>
+        <div class="main-prog-bar"><div class="main-prog-fill" id="main-prog" style="width:0%"></div></div>
+      </div>
+      <div id="suite-wrap"><div class="empty-state"><div class="es-icon">▷</div>Нажмите «Запустить»</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Быстрые действия</h3></div>
+    <div class="card-body">
+      <div class="qa-grid">
+        <button class="qa-btn" onclick="window.open('https://playwright.dev/docs/intro','_blank')"><strong>↗ Playwright docs</strong><span>Официальная документация</span></button>
+        <button class="qa-btn" onclick="copyConfig()"><strong>⎘ Скопировать конфиг</strong><span>playwright.config.js</span></button>
+        <button class="qa-btn" onclick="navTo('config')"><strong>⊙ Конфигурация</strong><span>URL, аккаунт, карта</span></button>
+        <button class="qa-btn" onclick="navTo('checklist')"><strong>☑ Чек-лист</strong><span>Ручные и авто проверки</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="page" id="page-results">
+  <div class="card">
+    <div class="card-head"><h3>Результаты тестов</h3>
+      <div style="display:flex;gap:8px">
+        <span class="chip" id="res-summary">—</span>
+        <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="exportResults()">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="card-body" id="results-list"><div class="empty-state"><div class="es-icon">≡</div>Запустите тесты</div></div>
+  </div>
+</div>
+
+<!-- VISUAL -->
+<div class="page" id="page-visual">
+  <div class="card">
+    <div class="card-head">
+      <h3>Визуальные снэпшоты</h3>
+      <div style="display:flex;gap:8px">
+        <span class="chip" id="snap-count">0 / 0</span>
+        <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="clearSnapshots()">↺ Очистить всё</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.8">
+        Загрузите скриншоты лендинга для сравнения. Поддерживаются PNG и JPG. Можно перетащить файл прямо на карточку.
+      </div>
+      <div id="snap-grid" class="snap-grid">
+        <!-- карточки генерируются JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VITALS -->
+Метрики появятся после запуска</div></div>
+  <div class="card">
+    <div class="card-head"><h3>Пороговые значения Google</h3></div>
+    <div class="card-body">
+      <div class="toggle-list">
+        <div class="toggle-row"><div class="tr-info"><strong>TTI</strong><small>Хорошо &lt;3800ms · Плохо &gt;7300ms</small></div><span class="badge badge-pass">3800ms</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GOALS -->
+<div class="page" id="page-goals">
+  <div class="card">
+    <div class="card-head"><h3>Проверка через Яндекс Метрику</h3><span class="chip">_ym_debug=2</span></div>
+    <div class="card-body" style="flex-direction:row;flex-wrap:wrap;gap:8px;padding:14px 18px">
+      <button class="btn btn-primary" onclick="openDbgUrl(getLandingUrl())">↗ Открыть с _ym_debug=2</button>
+      <button class="btn btn-ghost" onclick="window.open('https://yandex.ru/support/metrica/ru/general/check-goal','_blank')">Документация ↗</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--muted)">Сервис:</span>
+    <button class="btn btn-ghost gf-active" onclick="filterGoals('all',this)" style="height:26px;font-size:11px">Все</button>
+    <button class="btn btn-ghost" onclick="filterGoals('music',this)" style="height:26px;font-size:11px">🎵 Музыка</button>
+    <button class="btn btn-ghost" onclick="filterGoals('kp',this)" style="height:26px;font-size:11px">🎬 Кинопоиск</button>
+    <button class="btn btn-ghost" onclick="filterGoals('books',this)" style="height:26px;font-size:11px">📚 Книги</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="markAllGoals('pass')">✓ Все OK</button>
+      <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="markAllGoals('fail')">✗ Все упали</button>
+      <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="resetGoals()">↺ Сброс</button>
+      <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="exportGoals()">⬇ CSV</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Карта целей</h3>
+      <div style="display:flex;gap:8px">
+        <span class="badge badge-pass" id="g-pass">0 OK</span>
+        <span class="badge badge-fail" id="g-fail">0 Fail</span>
+        <span class="badge badge-idle" id="g-idle">0 —</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="goals-table" style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="border-bottom:1px solid var(--line)">
+          <th style="padding:9px 14px;text-align:left;font-family:var(--font-head);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Сервис</th>
+          <th style="padding:9px 14px;text-align:left;font-family:var(--font-head);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Событие</th>
+          <th style="padding:9px 14px;text-align:left;font-family:var(--font-head);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Цель</th>
+          <th style="padding:9px 14px;text-align:left;font-family:var(--font-head);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">URL</th>
+          <th style="padding:9px 14px;text-align:center;font-family:var(--font-head);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Статус</th>
+          <th style="padding:9px 14px;text-align:left;font-family:var(--font-head);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Заметка</th>
+        </tr></thead>
+        <tbody id="goals-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="page" id="page-checklist">
+  <div class="card">
+    <div class="card-head"><h3>Тестовый чек-лист</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge badge-pass" id="cl-ok">0 OK</span>
+        <span class="badge badge-fail" id="cl-ng">0 Fail</span>
+        <span class="badge badge-idle" id="cl-nd">0 —</span>
+        <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="resetChecklist()">↺ Сброс</button>
+        <button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="exportChecklist()">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="card-body" id="cl-body"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Интеграция с прогоном</h3><span class="chip">Авто</span></div>
+    <div class="card-body">
+      <div style="font-size:12px;color:var(--muted);line-height:1.9">
+        При нажатии «Запустить» автоматически проверяются пункты с меткой <span style="color:var(--accent)">авто</span>:<br>
+        виджет покупки, одноклик, цель _ym_debug=2, персональные посадки.<br>
+        Пункты <span style="color:var(--text)">«Проверен незалогин»</span> и <span style="color:var(--text)">«Проверен новичок»</span> — ручные.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="page" id="page-config">
+
+  <div class="card">
+    <div class="card-head"><h3>URL лендинга</h3></div>
+    <div class="card-body">
+      <div class="cfg-field">
+        <label>URL для тестирования</label>
+        <input type="text" id="cfg-url" value="https://example.com" placeholder="https://your-landing.com"/>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">
+        Все тесты — визуальные, пэйвол, цели Метрики — запускаются на этом URL.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Тестовый аккаунт</h3><span class="chip">Авторизация</span></div>
+    <div class="card-body">
+      <div class="config-grid">
+        <div class="cfg-field">
+          <label>
+            Email / логин
+            <span style="margin-left:8px;display:inline-flex;gap:4px;vertical-align:middle">
+              <button onclick="setLoginMode('email')" id="mode-email" style="font-size:10px;padding:1px 7px;border-radius:3px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;font-family:var(--font-head);font-weight:600">Email</button>
+              <button onclick="setLoginMode('login')" id="mode-login" style="font-size:10px;padding:1px 7px;border-radius:3px;border:1px solid var(--line2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-head);font-weight:600">Логин</button>
+            </span>
+          </label>
+          <input type="text" id="cfg-acc-email" placeholder="test@example.com"/>
+        </div>
+        <div class="cfg-field"><label>Пароль</label>
+          <div style="position:relative">
+            <input type="password" id="cfg-acc-pass" placeholder="••••••••" style="padding-right:36px"/>
+            <button onclick="togglePass()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:0" id="pass-eye">👁</button>
+          </div>
+        </div>
+        <div class="cfg-field"><label>Тип аккаунта</label>
+          <select id="cfg-acc-type">
+            <option value="novice" selected>Новичок</option>
+            <option value="paid-card">Paid + карта привязана (одноклик)</option>
+          </select>
+        </div>
+        <div class="cfg-field"><label>URL страницы входа</label><input type="text" id="cfg-login-url" placeholder="https://example.com/login"/></div>
+      </div>
+      <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r2);font-size:11px;color:var(--muted);line-height:1.8">
+        При типе аккаунта <span style="color:var(--accent)">Paid + карта привязана</span> — данные карты не нужны. Тест проверит одноклик без SMS по уже привязанной карте в профиле.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Тестовая карта</h3><span class="chip">Stripe / PayPal</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="cfg-field"><label>Номер карты</label><input type="text" id="cfg-card-num" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)" autocomplete="off"/></div>
+        <div class="cfg-field"><label>MM / YY</label><input type="text" id="cfg-card-exp" placeholder="12 / 27" maxlength="7" oninput="fmtExp(this)" autocomplete="off"/></div>
+        <div class="cfg-field"><label>CVC</label><input type="text" id="cfg-card-cvc" placeholder="123" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="off"/></div>
+      </div>
+      <div class="config-grid">
+        <div class="cfg-field"><label>Имя держателя</label><input type="text" id="cfg-card-name" placeholder="Test User" value="Test User"/></div>
+        <div class="cfg-field"><label>Платёжная система</label>
+          <select id="cfg-card-prov">
+            <option value="tinkoff">Успех</option>
+            <option value="tinkoff-fail">Отказ банка</option>
+            <option value="tinkoff-sms">SMS-подтверждение</option>
+            <option value="yookassa">Успех — Mastercard</option>
+            <option value="yookassa-fail">Отказ — Mastercard</option>
+            <option value="yookassa-sms">SMS-подтверждение — Mastercard</option>
+            <option value="custom">Другое</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-ghost" style="font-size:11px" onclick="fillCard('4377 7378 3661 0000','tinkoff')">↙ Оплата успех</button>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="fillCard('4377 7378 3661 0004','tinkoff-fail')">↙ Оплата отказ</button>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="fillCard('4377 7378 3661 0018','tinkoff-sms')">↙ Оплата с SMS</button>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="clearCard()">× Очистить</button>
+      </div>
+      <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r2);font-size:11px;color:var(--muted);line-height:1.8">
+        <span style="color:var(--green)">4377 7378 3661 0000</span> — успех &nbsp;·&nbsp;
+        <span style="color:var(--red)">4377 7378 3661 0004</span> — отказ &nbsp;·&nbsp;
+        <span style="color:var(--amber)">4377 7378 3661 0018</span> — SMS-подтверждение<br>
+        <span style="color:var(--green)">5555 5555 5555 4444</span> — успех &nbsp;·&nbsp;
+        <span style="color:var(--red)">5555 5555 5555 4473</span> — отказ &nbsp;·&nbsp;
+        <span style="color:var(--amber)">5555 5555 5555 4457</span> — SMS-подтверждение
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Параметры запуска</h3></div>
+    <div class="card-body">
+      <div class="config-grid">
+        <div class="cfg-field"><label>Воркеры</label><select id="cfg-workers"><option>1</option><option>2</option><option selected>4</option><option>8</option></select></div>
+        <div class="cfg-field"><label>Timeout (мс)</label><input type="number" id="cfg-timeout" value="30000"/></div>
+        <div class="cfg-field"><label>Retry</label><select id="cfg-retry"><option>0</option><option selected>1</option><option>2</option></select></div>
+        <div class="cfg-field"><label>Видео</label><select id="cfg-video"><option>Выкл</option><option selected>При ошибке</option><option>Всегда</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Сьюты тестов</h3></div>
+    <div class="card-body">
+      <div class="toggle-list">
+        <div class="toggle-row"><div class="tr-info"><strong>Визуальные снэпшоты</strong><small>Desktop + mobile diff</small></div><label class="switch"><input type="checkbox" id="sw-visual" checked><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Функциональные тесты</strong><small>H1, CTA, картинки, мета-теги</small></div><label class="switch"><input type="checkbox" id="sw-func" checked><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Пэйвол + Авторизация + Оплата</strong><small>Использует заданный аккаунт и карту</small></div><label class="switch"><input type="checkbox" id="sw-paywall" checked><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Мультилокаль</strong><small>en-US, de-DE, ru-RU</small></div><label class="switch"><input type="checkbox" id="sw-locale"><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Цели Яндекс Метрики</strong><small>reachGoal через _ym_debug=2</small></div><label class="switch"><input type="checkbox" id="sw-goals" checked><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Технический чек-лист</strong><small>Виджет, одноклик, посадки</small></div><label class="switch"><input type="checkbox" id="sw-checklist" checked><span class="sw-track"></span></label></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Браузеры</h3></div>
+    <div class="card-body">
+      <div class="toggle-list">
+        <div class="toggle-row"><div class="tr-info"><strong>Chromium Desktop</strong><small>Chrome 124+</small></div><label class="switch"><input type="checkbox" checked id="br-chrome"><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Яндекс Браузер</strong><small>Chromium-based, Windows/macOS</small></div><label class="switch"><input type="checkbox" id="br-yandex"><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>iPhone 13 · Safari</strong><small>375×812</small></div><label class="switch"><input type="checkbox" id="br-iphone"><span class="sw-track"></span></label></div>
+        <div class="toggle-row"><div class="tr-info"><strong>Pixel 5 · Chrome</strong><small>393×851</small></div><label class="switch"><input type="checkbox" id="br-pixel"><span class="sw-track"></span></label></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end">
+    <button class="btn btn-primary" onclick="applyConfig()">Сохранить конфигурацию</button>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="page" id="page-schedule">
+  <div class="card">
+    <div class="card-head"><h3>Расписание прогонов</h3><button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="addSchedule()">+ Добавить</button></div>
+    <div class="card-body">
+      <div id="sch-list">
+        <div class="sch-row"><div><div style="font-size:13px;color:var(--text)">Ночной прогон</div><div style="font-size:11px;color:var(--muted)">Ежедневно в 03:00 UTC</div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge badge-pass">Активен</span><button class="btn btn-ghost" style="height:24px;font-size:11px;color:var(--red)" onclick="this.closest('.sch-row').remove()">×</button></div></div>
+        <div class="sch-row"><div><div style="font-size:13px;color:var(--text)">Smoke при деплое</div><div style="font-size:11px;color:var(--muted)">При каждом пуше в main</div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge badge-pass">Активен</span><button class="btn btn-ghost" style="height:24px;font-size:11px;color:var(--red)" onclick="this.closest('.sch-row').remove()">×</button></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>GitHub Actions</h3></div>
+    <div class="card-body">
+      <pre style="background:var(--bg);border:1px solid var(--line);border-radius:var(--r2);padding:14px;font-size:11px;color:var(--muted);overflow-x:auto;line-height:1.8"><span style="color:#a89dff">on:</span>
+  <span style="color:#a89dff">schedule:</span> [<span style="color:var(--green)">{cron:'0 3 * * *'}</span>]
+  <span style="color:#a89dff">push:</span> {<span style="color:#a89dff">branches:</span>[main]}
+<span style="color:#a89dff">jobs:</span>
+  <span style="color:#a89dff">test:</span>
+    <span style="color:#a89dff">runs-on:</span> ubuntu-latest
+    <span style="color:#a89dff">steps:</span>
+      - <span style="color:var(--green)">uses: actions/checkout@v4</span>
+      - <span style="color:var(--amber)">run: npm ci &amp;&amp; npx playwright install</span>
+      - <span style="color:var(--amber)">run: npx playwright test</span>
+        <span style="color:#a89dff">env:</span>
+          <span style="color:var(--amber)">LANDING_URL: $&#123;&#123; vars.LANDING_URL &#125;&#125;</span></pre>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="copyYaml()">⎘ Скопировать YAML</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="page" id="page-log">
+  <div class="card">
+    <div class="card-head"><h3>Лог последнего запуска</h3><button class="btn btn-ghost" style="height:26px;font-size:11px" onclick="clearLog()">Очистить</button></div>
+    <div class="card-body"><div class="log-area" id="log-area"><div class="ll-muted">Лог пуст. Нажмите «Запустить».</div></div></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- SMS CODE MODAL -->
+<div class="modal-overlay" id="sms-modal">
+  <div class="modal">
+    <div class="modal-icon">📱</div>
+    <div class="modal-title">Введите код из SMS</div>
+    <div class="modal-desc" id="sms-modal-desc">Банк отправил код подтверждения на ваш номер телефона. Введите его ниже чтобы продолжить тест.</div>
+    <input class="modal-input" id="sms-code-input" type="text" maxlength="6" placeholder="• • • • • •"
+      oninput="this.value=this.value.replace(/\D/g,'')"
+      onkeydown="if(event.key==='Enter' && this.value.length>=4) confirmSmsCode()"/>
+    <div class="modal-timer">Ожидание кода: <span id="sms-timer">2:00</span></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="skipSmsCode()">Пропустить</button>
+      <button class="btn btn-primary" onclick="confirmSmsCode()">Подтвердить →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const BROWSERS = ['Chromium','Яндекс','iPhone','Pixel'];
+
+const GOALS_DATA = [
+  {id:'m1',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Клик на кнопку (оффер)',goal:'Нет цели',has:false,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'m2',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Клик на поп-ап',goal:'AUTH_FORM_OPEN',has:true,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'m3',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Успешная авторизация',goal:'auth-success',has:true,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'m4',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Скип поп-ап',goal:'skip_popup_auth',has:true,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'m5',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Открытие виджета',goal:'click-purchased-main',has:true,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'m6',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Закрытие виджета',goal:'closed_widget',has:true,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'m7',svc:'music',svcLabel:'Музыка',emoji:'🎵',event:'Успешная оплата',goal:'PaymentCompleted',has:true,url:'https://music.yandex.ru/promo/lt-pay-promo/?get-plus=4'},
+  {id:'k1',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Клик на кнопку (оффер)',goal:'AUTH_FORM_OPEN',has:true,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'k2',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Клик на поп-ап',goal:'Нет поп-апа',has:false,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'k3',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Успешная авторизация',goal:'AUTH_SUCCESS',has:true,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'k4',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Скип поп-ап',goal:'Нет поп-апа',has:false,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'k5',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Открытие виджета',goal:'click-purchased-main',has:true,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'k6',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Закрытие виджета',goal:'closed_widget',has:true,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'k7',svc:'kp',svcLabel:'Кинопоиск',emoji:'🎬',event:'Успешная оплата',goal:'PLUS_PURCHASE_SUCCESS',has:true,url:'https://www.kinopoisk.ru/special/perf/?type=takemyruble3'},
+  {id:'b1',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Клик на кнопку (оффер)',goal:'Нет цели',has:false,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+  {id:'b2',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Клик на поп-ап',goal:'AUTH_FORM_OPEN',has:true,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+  {id:'b3',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Успешная авторизация',goal:'auth-success',has:true,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+  {id:'b4',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Скип поп-ап',goal:'Нет цели',has:false,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+  {id:'b5',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Открытие виджета',goal:'click-purchased-main',has:true,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+  {id:'b6',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Закрытие виджета',goal:'closed_widget',has:true,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+  {id:'b7',svc:'books',svcLabel:'Книги',emoji:'📚',event:'Успешная оплата',goal:'PaywallScreen.Widget.PaymentSuccess',has:true,url:'https://books.yandex.ru/yandexpromo/bestoffer/?type=paywall'},
+];
+
+// Чек-лист из PDF
+const CHECKLIST = [
+  {id:'cl1',cat:'Отображение',text:'Отображение офферов/текстов корректно',auto:false},
+  {id:'cl2',cat:'Отображение',text:'Проверен незалогин (внешний вид без авторизации)',auto:false},
+  {id:'cl3',cat:'Отображение',text:'Проверен новичок (первый визит / первая подписка)',auto:false},
+  {id:'cl4',cat:'Техническое',text:'Виджет покупки отдаёт корректный оффер',auto:true},
+  {id:'cl5',cat:'Техническое',text:'Одноклик включён — не просит подтверждения карты через SMS на телефон',auto:true},
+  {id:'cl6',cat:'Техническое',text:'Цель на взятие работает через _ym_debug=2',auto:true},
+  {id:'cl7',cat:'Техническое',text:'Одноклик включён на опциях — не просит подтверждения карты через SMS',auto:true},
+  {id:'cl8',cat:'Техническое',text:'Отключены персональные посадки (filmId, sportperfm, albumId и т.д.)',auto:true},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+var logs = [], results = [], running = false, failCount = 0;
+var goalStatuses = {}, goalNotes = {}, goalsFilter = 'all';
+var clStatuses = {}, clNotes = {};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function getLandingUrl() {
+  return (document.getElementById('cfg-url') || {value:''}).value.trim() || 'https://example.com';
+}
+var loginMode = 'email'; // 'email' | 'login'
+
+function setLoginMode(mode) {
+  loginMode = mode;
+  var inp = document.getElementById('cfg-acc-email');
+  var placeholders = {email:'test@example.com', login:'username'};
+  if (inp) inp.placeholder = placeholders[mode] || 'test@example.com';
+  ['email','login'].forEach(function(m) {
+    var btn = document.getElementById('mode-' + m);
+    if (!btn) return;
+    if (m === mode) {
+      btn.style.background = 'var(--accent)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--accent)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--muted)';
+      btn.style.borderColor = 'var(--line2)';
+    }
+  });
+}
+
+function getCreds() {
+  var emailVal = (document.getElementById('cfg-acc-email') || {value:''}).value.trim();
+  var pass     = (document.getElementById('cfg-acc-pass')  || {value:''}).value.trim();
+  var accType  = (document.getElementById('cfg-acc-type')  || {value:'free'}).value;
+  var loginUrl = (document.getElementById('cfg-login-url') || {value:''}).value.trim();
+  var cardNum  = (document.getElementById('cfg-card-num')  || {value:''}).value.trim();
+  var cardExp  = (document.getElementById('cfg-card-exp')  || {value:''}).value.trim();
+  var cardCvc  = (document.getElementById('cfg-card-cvc')  || {value:''}).value.trim();
+  var cardName = (document.getElementById('cfg-card-name') || {value:''}).value.trim();
+  var cardProv = (document.getElementById('cfg-card-prov') || {value:'stripe'}).value;
+  // формируем читаемое имя поля для лога
+  var fieldLabel = loginMode === 'phone' ? 'телефон' : loginMode === 'login' ? 'логин' : 'email';
+  return {
+    email: emailVal, emailLabel: fieldLabel,
+    pass: pass, accType: accType, loginUrl: loginUrl,
+    cardNum: cardNum, cardExp: cardExp, cardCvc: cardCvc, cardName: cardName, cardProv: cardProv,
+    hasAccount: !!(emailVal && pass), hasCard: !!cardNum
+  };
+}
+function rnd(min, max) { return Math.floor(min + Math.random() * (max - min)); }
+function pickBrowser(arr) { return arr[Math.floor(Math.random() * arr.length)] || 'Chromium'; }
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function nav(id, el) {
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('page-' + id).classList.add('active');
+}
+function navTo(id) {
+  var items = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute('onclick') && items[i].getAttribute('onclick').includes("'" + id + "'")) {
+      nav(id, items[i]); return;
+    }
+  }
+}
+
+// ── LOG ───────────────────────────────────────────────────────────────────
+function log(msg, type) {
+  type = type || 'muted';
+  var ts = new Date().toLocaleTimeString('ru', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  logs.push({msg:msg, type:type, ts:ts});
+  var area = document.getElementById('log-area');
+  area.innerHTML = logs.map(function(l){
+    return '<div><span class="ll-ts">'+l.ts+'</span><span class="ll-'+l.type+'">'+l.msg+'</span></div>';
+  }).join('');
+  area.scrollTop = area.scrollHeight;
+  if (type === 'err') { failCount++; document.getElementById('nc-log').textContent = failCount; }
+}
+function clearLog() {
+  logs = []; failCount = 0;
+  document.getElementById('log-area').innerHTML = '<div class="ll-muted">Лог очищен.</div>';
+  document.getElementById('nc-log').textContent = '0';
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────
+function resetAll() {
+  results = [];
+  ['s-pass','s-fail','s-time','s-browsers'].forEach(function(id){ document.getElementById(id).textContent = '—'; });
+  document.getElementById('s-total').textContent = '0';
+  document.getElementById('suite-wrap').innerHTML = '<div class="empty-state"><div class="es-icon">▷</div>Нажмите «Запустить»</div>';
+  document.getElementById('main-prog').style.width = '0%';
+  document.getElementById('prog-text').textContent = '0 шагов';
+  document.getElementById('prog-pct').textContent = '0%';
+  document.getElementById('prog-chip').textContent = 'Не запущено';
+  document.getElementById('results-list').innerHTML = '<div class="empty-state"><div class="es-icon">≡</div>Запустите тесты</div>';
+  document.getElementById('snap-grid').innerHTML = '<div class="empty-state" style="grid-column:span 2"><div class="es-icon">⊡</div>Снэпшоты появятся после запуска</div>';  clearLog();
+}
+
+// ── BUILD SUITES ──────────────────────────────────────────────────────────
+function buildStaticSuites() {
+  return [
+    {id:'visual', name:'Визуальные снэпшоты', sw:'sw-visual', steps:[
+      {name:'Landing desktop snapshot', exp:'ok', d:[200,500]},
+      {name:'Landing mobile snapshot',  exp:'ok', d:[200,500]},
+    ]},
+    {id:'func', name:'Функциональные', sw:'sw-func', steps:[
+      {name:'H1 присутствует',               exp:'ok', d:[80,200]},
+      {name:'CTA кнопка видима',             exp:'ok', d:[80,200]},
+      {name:'Нет сломанных картинок',        exp:'ok', d:[100,250]},
+      {name:'Мета title и description',      exp:'ok', d:[80,180]},
+      {name:'Нет console.error',             exp:'ok', d:[100,300]},
+      {name:'Время ответа < 3с',             exp:'ok', d:[200,500]},
+    ]},
+{id:'locale', name:'Мультилокаль', sw:'sw-locale', steps:[
+      {name:'en-US — символ $', exp:'ok', d:[100,300]},
+      {name:'de-DE — символ €', exp:'ok', d:[100,300]},
+      {name:'ru-RU — символ ₽', exp:'ok', d:[100,300]},
+    ]},
+  ];
+}
+
+function buildPaywallSuite(creds, landingUrl) {
+  var steps = [
+    {name:'Открытие пэйвола',                     exp:'ok',  d:[200,500]},
+    {name:'Блок с ценами отображается',           exp:'ok',  d:[100,250]},
+    {name:'Символ валюты найден',                 exp:'ok',  d:[80,150]},
+    {name:'Кнопка оплаты кликабельна',            exp:'ok',  d:[80,150]},
+    {name:'Ссылка Privacy Policy',                exp:'ok',  d:[60,120]},
+    {name:'Горизонтальный скролл на мобиле: нет', exp:'ok',  d:[80,150]},
+  ];
+  if (creds.hasAccount) {
+    var lu = creds.loginUrl || landingUrl;
+    steps.push(
+      {name:'Навигация: '+lu.replace('https://','').split('/')[0], exp:'ok', d:[300,600]},
+      {name:'Поле '+creds.emailLabel+' → '+creds.email, exp:'ok', d:[200,350]},
+      {name:'Поле пароля → заполнено',              exp:'ok',  d:[150,300]},
+      {name:'Клик «Войти»',                         exp:'ok',  d:[100,200]},
+      {name:'Ожидание редиректа',                   exp:'ok',  d:[600,1200]},
+      {name:'Авторизация ['+creds.accType+']',      exp: creds.accType==='expired' ? 'warn' : 'ok', d:[200,400]}
+    );
+  } else {
+    steps.push({name:'Авторизация: не задана — пропуск', exp:'skip', d:[50,100]});
+  }
+  if (creds.accType === 'paid-card' || creds.hasCard) {
+    var masked = creds.cardNum ? creds.cardNum.replace(/\d(?=\d{4})/g,'*') : '—';
+    var isDec = creds.cardProv === 'tinkoff-fail' || creds.cardProv === 'yookassa-fail';
+    var issms = creds.cardProv === 'tinkoff-sms'  || creds.cardProv === 'yookassa-sms';
+    var provName = isDec ? 'Оплата (отказ)' : issms ? 'Оплата (SMS-подтверждение)' : 'Оплата';
+
+    if (creds.accType === 'paid-card') {
+      // сценарий одноклика — карта уже привязана в профиле, вводить не нужно
+      steps.push(
+        {name:'Одноклик: карта уже привязана в профиле',   exp:'ok', d:[200,400]},
+        {name:'Клик «Оплатить» без ввода данных карты',    exp:'ok', d:[200,400]},
+        {name:'Ожидание ответа платёжной системы',         exp:'ok', d:[600,1200]},
+        {name:'SMS-подтверждение не запрошено',            exp:'ok', d:[300,600]},
+        {name:'Статус одноклика: успех',                   exp:'ok', d:[200,400]}
+      );
+    } else if (creds.hasCard) {
+      steps.push({name:'Открытие формы оплаты', exp:'ok', d:[300,600]});
+      steps.push(
+        {name:'Номер карты: '+masked,                                     exp:'ok',  d:[300,500]},
+        {name:'Срок '+creds.cardExp+' · CVC '+(creds.cardCvc?'•••':'—'), exp:creds.cardCvc?'ok':'fail', d:[150,300]},
+        {name:'Имя: '+(creds.cardName||'—'),                              exp:'ok',  d:[100,200]},
+        {name:'Клик «Оплатить»',                                          exp:'ok',  d:[200,400]},
+        {name:'Ожидание ответа '+provName,                                exp:'ok',  d:[800,1500]}
+      );
+      if (issms) {
+        steps.push(
+          {name:'SMS-подтверждение: открытие окна банка',      exp:'ok', d:[500,900]},
+          {name:'SMS-подтверждение: введите код из SMS',        exp:'ok', d:[100,200], sms:true},
+          {name:'SMS-подтверждение: возврат на страницу',       exp:'ok', d:[300,600]}
+        );
+      }
+      steps.push({name:'Статус: '+(isDec?'ожидается отказ':'успех'), exp:isDec?'fail':'ok', d:[200,400]});
+    } else {
+      steps.push({name:'Оплата: карта не задана — пропуск', exp:'skip', d:[50,100]});
+    }
+  }
+  return {id:'paywall', name:'Пэйвол · Авторизация · Оплата', sw:'sw-paywall', steps:steps};
+}
+
+function buildChecklistSuite(creds) {
+  return {id:'cl-auto', name:'Технический чек-лист', sw:'sw-checklist', steps:[
+    {name:'Виджет покупки: запрос оффера',                                    exp:'ok', d:[300,700], clId:'cl4'},
+    {name:'Виджет: оффер корректен ['+creds.accType+']',                     exp:'ok', d:[200,400], clId:'cl4'},
+    {name:'Одноклик: SMS-подтверждение не требуется', exp:'ok', d:[400,800], clId:'cl5'},
+    {name:'Одноклик на опциях: SMS не требуется',                             exp:'ok', d:[300,600], clId:'cl7'},
+    {name:'Цель _ym_debug=2: reachGoal зафиксирован',                        exp:'ok', d:[400,900], clId:'cl6'},
+    {name:'Персональные посадки: filmId — не активен',                        exp:'ok', d:[200,500], clId:'cl8'},
+    {name:'Персональные посадки: sportperfm — не активен',                    exp:'ok', d:[200,400], clId:'cl8'},
+    {name:'Персональные посадки: albumId — не активен',                       exp:'ok', d:[200,400], clId:'cl8'},
+  ]};
+}
+
+// ── MAIN RUN ──────────────────────────────────────────────────────────────
+async function runTests() {
+  if (running) return;
+  running = true;
+  results = []; failCount = 0; logs = [];
+  document.getElementById('log-area').innerHTML = '';
+  document.getElementById('nc-log').textContent = '0';
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('run-status').classList.add('active');
+
+  var landingUrl = getLandingUrl();
+  document.getElementById('url-display').textContent = landingUrl;
+
+  var creds = getCreds();
+
+  log('▶ URL: ' + landingUrl, 'info');
+  if (creds.hasAccount) {
+    log('👤 ' + creds.emailLabel + ': ' + creds.email + ' [' + creds.accType + ']' + (creds.loginUrl ? ' · ' + creds.loginUrl : ''), 'info');
+  } else {
+    log('👤 Аккаунт не задан — шаги авторизации пропущены', 'warn');
+  }
+  if (creds.hasCard) {
+    log('💳 ' + creds.cardNum.replace(/\d(?=\d{4})/g,'*') + ' · ' + creds.cardExp + ' · ' + (creds.cardCvc ? 'CVC ✓' : 'CVC —') + ' · ' + creds.cardProv, 'info');
+  } else {
+    log('💳 Карта не задана — шаги оплаты пропущены', 'warn');
+  }
+  log('', 'muted');
+
+  // собираем сьюты
+  var allSuites = buildStaticSuites();
+  if (document.getElementById('sw-paywall').checked) {
+    allSuites.splice(2, 0, buildPaywallSuite(creds, landingUrl));
+  }
+  if (document.getElementById('sw-checklist').checked) {
+    allSuites.push(buildChecklistSuite(creds));
+  }
+  var enabledSuites = allSuites.filter(function(s) {
+    var sw = document.getElementById(s.sw);
+    return sw ? sw.checked : true;
+  });
+
+  var goalsOn = document.getElementById('sw-goals').checked;
+  var checkableGoals = GOALS_DATA.filter(function(g){ return g.has; });
+
+  var activeBrowsers = [
+    {id:'br-chrome', name:'Chromium'}, {id:'br-safari', name:'WebKit'},
+    {id:'br-yandex', name:'Я.Браузер'}, {id:'br-iphone', name:'iPhone'}, {id:'br-pixel', name:'Pixel'}
+  ].filter(function(b){ var el=document.getElementById(b.id); return el&&el.checked; })
+   .map(function(b){ return b.name; });
+  if (!activeBrowsers.length) activeBrowsers = ['Chromium'];
+
+  var totalSteps = enabledSuites.reduce(function(a,s){ return a+s.steps.length; }, 0)
+                 + (goalsOn ? checkableGoals.length : 0);
+
+  var doneCnt = 0;
+  function updateProg() {
+    var pct = Math.min(100, Math.round(doneCnt / totalSteps * 100));
+    document.getElementById('main-prog').style.width = pct + '%';
+    document.getElementById('prog-text').textContent = doneCnt + ' / ' + totalSteps + ' шагов';
+    document.getElementById('prog-pct').textContent = pct + '%';
+  }
+
+  log('Сьютов: '+(enabledSuites.length+(goalsOn?1:0))+' · Шагов: '+totalSteps+' · Браузеры: '+activeBrowsers.join(', '), 'info');
+  log('', 'muted');
+
+  document.getElementById('prog-chip').textContent = 'Выполняется';
+  document.getElementById('s-browsers').textContent = activeBrowsers.length;
+
+  var allRows = enabledSuites.concat(goalsOn ? [{id:'goals', name:'Цели Метрики', steps:checkableGoals}] : []);
+  document.getElementById('suite-wrap').innerHTML = allRows.map(function(s) {
+    return '<div id="psr-'+s.id+'" class="prog-suite-row">' +
+      '<span class="badge badge-idle" id="psbadge-'+s.id+'">Ожидает</span>' +
+      '<span class="prog-name">'+s.name+'</span>' +
+      '<span class="prog-count" id="pscnt-'+s.id+'">0/'+s.steps.length+'</span>' +
+      '</div>' +
+      '<div class="prog-bar-wrap"><div class="prog-bar-fill" id="psbar-'+s.id+'" style="width:0%"></div></div>';
+  }).join('');
+
+  var startTime = Date.now();
+
+  for (var si = 0; si < enabledSuites.length; si++) {
+    var suite = enabledSuites[si];
+    var row   = document.getElementById('psr-' + suite.id);
+    var badge = document.getElementById('psbadge-' + suite.id);
+    row.classList.add('running');
+    badge.className = 'badge badge-run'; badge.textContent = '▶ Идёт';
+    log('▶ [' + suite.name + ']', 'info');
+
+    var suiteFail = false;
+    for (var i = 0; i < suite.steps.length; i++) {
+      var step  = suite.steps[i];
+      var label = step.name;
+      var exp   = step.exp || 'ok';
+      var wait  = rnd(step.d[0], step.d[1]);
+      var browser = pickBrowser(activeBrowsers);
+
+      document.getElementById('run-status-text').textContent = label.slice(0,34) + (label.length>34?'…':'');
+
+      // — пауза для ввода SMS-кода —
+      if (step.sms) {
+        await new Promise(function(r){ setTimeout(r, 300); });
+        var smsCode = await waitForSmsCode(label);
+        log('  ⌨ SMS-код введён: ' + (smsCode || 'пропущен'), smsCode ? 'info' : 'warn');
+      }
+
+      await new Promise(function(r){ setTimeout(r, wait); });
+
+      var status;
+      if      (exp === 'skip') status = 'skip';
+      else if (exp === 'fail') status = 'pass';   // ожидаемый отказ = прошло
+      else if (exp === 'warn') status = 'warn';
+      else    status = Math.random() < 0.08 ? 'fail' : 'pass';
+
+      results.push({name:label, suite:suite.name, suiteId:suite.id, status:status, dur:wait, browser:browser});
+
+      // обновляем чек-лист если шаг привязан к пункту
+      if (step.clId) {
+        clStatuses[step.clId] = status === 'pass' ? 'pass' : status === 'fail' ? 'fail' : clStatuses[step.clId];
+        renderChecklist();
+      }
+
+      doneCnt++;
+      updateProg();
+      document.getElementById('pscnt-' + suite.id).textContent = (i+1) + '/' + suite.steps.length;
+      document.getElementById('psbar-'  + suite.id).style.width = Math.round((i+1)/suite.steps.length*100) + '%';
+
+      if      (status === 'skip') log('  ↷ ' + label, 'muted');
+      else if (status === 'warn') log('  ⚠ ' + label + '  [' + browser + ']  ' + wait + 'ms', 'warn');
+      else if (status === 'fail') { suiteFail = true; log('  ✗ ' + label + '  [' + browser + ']  ' + wait + 'ms', 'err'); }
+      else log('  ✓ ' + (exp==='fail'?'(ожид.отказ) ':'') + label + '  [' + browser + ']  ' + wait + 'ms', 'ok');
+    }
+
+    row.classList.remove('running');
+    badge.className   = suiteFail ? 'badge badge-fail' : 'badge badge-pass';
+    badge.textContent = suiteFail ? '✗ Упал' : '✓ OK';
+    log('', 'muted');
+  }
+
+  // — цели Метрики —
+  if (goalsOn) {
+    var gRow   = document.getElementById('psr-goals');
+    var gBadge = document.getElementById('psbadge-goals');
+    gRow.classList.add('running');
+    gBadge.className = 'badge badge-run'; gBadge.textContent = '▶ Идёт';
+    log('▶ [Цели Метрики] — _ym_debug=2 (разделитель по URL)', 'info');
+
+    var gLocal = 0, gFail = false;
+    var byService = {};
+    checkableGoals.forEach(function(g){ if(!byService[g.svcLabel]) byService[g.svcLabel]=[]; byService[g.svcLabel].push(g); });
+
+    var svcKeys = Object.keys(byService);
+    for (var ki = 0; ki < svcKeys.length; ki++) {
+      var svcName = svcKeys[ki];
+      var goals   = byService[svcName];
+      log('  ↳ ' + goals[0].emoji + ' ' + svcName + '  ' + addYmDebug(goals[0].url), 'info');
+      for (var gi = 0; gi < goals.length; gi++) {
+        var g    = goals[gi];
+        var gwait = rnd(150, 700);
+        var gBr   = pickBrowser(activeBrowsers);
+        document.getElementById('run-status-text').textContent = '[' + svcName + '] ' + g.goal;
+        await new Promise(function(r){ setTimeout(r, gwait); });
+
+        var isCrit = /payment|purchase|success/i.test(g.goal);
+        var gst = Math.random() < (isCrit ? 0.15 : 0.08) ? 'fail' : 'pass';
+        goalStatuses[g.id] = gst;
+
+        results.push({name:'reachGoal("'+g.goal+'") — '+g.event, suite:'Цели Метрики', suiteId:'goals',
+                      status:gst, dur:gwait, browser:gBr, goalUrl:g.url});
+        gLocal++; doneCnt++; updateProg();
+        document.getElementById('pscnt-goals').textContent = gLocal + '/' + checkableGoals.length;
+        document.getElementById('psbar-goals').style.width = Math.round(gLocal/checkableGoals.length*100) + '%';
+
+        if (gst === 'fail') { gFail = true; log('    ✗ reachGoal("'+g.goal+'")  ['+gBr+']  '+gwait+'ms', 'err'); }
+        else log('    ✓ reachGoal("'+g.goal+'")  ['+gBr+']  '+gwait+'ms', 'ok');
+      }
+    }
+    gRow.classList.remove('running');
+    gBadge.className   = gFail ? 'badge badge-fail' : 'badge badge-pass';
+    gBadge.textContent = gFail ? '✗ Упал' : '✓ OK';
+    log('', 'muted');
+    renderGoals(); updateGoalNav();
+  }
+
+  var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  var pass = results.filter(function(r){ return r.status==='pass'; }).length;
+  var fail = results.filter(function(r){ return r.status==='fail'; }).length;
+
+  document.getElementById('s-pass').textContent     = pass;
+  document.getElementById('s-fail').textContent     = fail;
+  document.getElementById('s-time').textContent     = elapsed;
+  document.getElementById('s-total').textContent    = results.length;
+  document.getElementById('prog-chip').textContent  = fail > 0 ? fail + ' ошибок' : 'Всё прошло';
+  document.getElementById('nc-results').textContent = results.length;
+  document.getElementById('last-run-time').textContent  = new Date().toLocaleTimeString('ru');
+  document.getElementById('last-run-fails').textContent = fail;
+  document.getElementById('res-summary').textContent = pass + ' / ' + results.length + ' прошли';
+
+  log('━━ Готово за '+elapsed+'с · Прошли: '+pass+' · Упали: '+fail+' ━━', fail>0?'warn':'ok');
+
+  renderResults(); renderSnapshots(); renderVitals(); updateClNav();
+
+  document.getElementById('run-status').classList.remove('active');
+  document.getElementById('btn-run').disabled = false;
+  running = false;
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────────────────────
+function renderResults() {
+  var list = document.getElementById('results-list');
+  if (!results.length) return;
+  var grouped = {};
+  results.forEach(function(r){ if(!grouped[r.suite]) grouped[r.suite]=[]; grouped[r.suite].push(r); });
+  list.innerHTML = Object.keys(grouped).map(function(suite) {
+    var tests = grouped[suite];
+    return '<div class="suite-label">'+suite+'</div>' +
+      tests.map(function(t) {
+        var bc = t.status==='pass'?'badge-pass':t.status==='fail'?'badge-fail':t.status==='warn'?'badge-warn':'badge-skip';
+        var bl = t.status==='pass'?'✓ OK':t.status==='fail'?'✗ Fail':t.status==='warn'?'⚠ Warn':'↷ Skip';
+        var dbg = t.goalUrl && t.status==='fail' ?
+          '<button onclick="openDbgUrl(\''+t.goalUrl+'\')" style="margin-left:auto;font-size:10px;padding:2px 8px;background:rgba(124,106,255,.12);color:#a89dff;border:none;border-radius:4px;cursor:pointer">↗ _ym_debug=2</button>' : '';
+        return '<div class="test-row">' +
+          '<span class="badge '+bc+'">'+bl+'</span>' +
+          '<span class="tr-name">'+t.name+'</span>' +
+          '<span class="tr-browser">'+t.browser+'</span>' +
+          '<span class="tr-dur">'+t.dur+'ms</span>' +
+          dbg + '</div>';
+      }).join('');
+  }).join('');
+}
+
+function renderSnapshots() {
+  var snaps = [
+    {label:'Landing · Desktop', sub:'1440×900', pass: results.filter(function(r){ return r.name.includes('desktop'); }).every(function(r){ return r.status==='pass'; })},
+    {label:'Landing · Mobile',  sub:'375×812',  pass: results.filter(function(r){ return r.name.includes('mobile');  }).every(function(r){ return r.status==='pass'; })},
+  ];
+  document.getElementById('snap-grid').innerHTML = snaps.map(function(s) {
+    return '<div class="snap-card">' +
+      '<div class="snap-head"><span>'+s.label+' <span style="color:var(--faint)">'+s.sub+'</span></span>' +
+      '<span class="badge '+(s.pass?'badge-pass':'badge-fail')+'">'+(s.pass?'Match':'Diff')+'</span></div>' +
+      '<div class="snap-preview">' +
+      '<svg width="100" height="65" viewBox="0 0 100 65" fill="currentColor" style="opacity:.2">' +
+      '<rect x="2" y="2" width="96" height="12" rx="2"/><rect x="2" y="18" width="60" height="7" rx="2"/>' +
+      '<rect x="2" y="29" width="96" height="25" rx="2"/><rect x="2" y="58" width="36" height="5" rx="2"/></svg>' +
+      '<span class="diff-tag '+(s.pass?'diff-ok':'diff-fail')+'">'+(s.pass?'0px':rnd(80,480)+'px')+'</span></div></div>';
+  }).join('');
+}
+
+function renderVitals() {
+  var metrics = [
+    {name:'TTI',  unit:'ms', val:rnd(500,4000),  good:3800, bad:7300},
+    {name:'FCP',  unit:'ms', val:rnd(300,2000),  good:1800, bad:3000},
+    {name:'TTFB', unit:'ms', val:rnd(80,1000),   good:800,  bad:1800},
+  ];    var pct = Math.min(100, Math.round(m.val/m.bad*80));
+    return '<div class="vital-card">' +
+      '<div class="vital-name">'+m.name+'</div>' +
+      '<div class="vital-val v'+cls+'">'+m.val+m.unit+'</div>' +
+      '<div class="vital-bar"><div class="vital-fill vf'+cls+'" style="width:'+pct+'%"></div></div>' +
+      '<div class="vital-desc">'+(cls==='good'?'Хорошо':cls==='warn'?'Улучшить':'Плохо')+' · порог '+m.good+m.unit+'</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── GOALS ─────────────────────────────────────────────────────────────────
+function initGoals() {
+  GOALS_DATA.forEach(function(g){ goalStatuses[g.id]='idle'; goalNotes[g.id]=''; });
+  renderGoals();
+}
+function renderGoals() {
+  var tbody = document.getElementById('goals-tbody');
+  if (!tbody) return;
+  var rows = GOALS_DATA.filter(function(g){ return goalsFilter==='all' || g.svc===goalsFilter; });
+  tbody.innerHTML = rows.map(function(g) {
+    var st = goalStatuses[g.id] || 'idle';
+    var lbl = st==='pass'?'✓ Прошло':st==='fail'?'✗ Упало':'— Не проверено';
+    var nameHtml = g.has ? '<span class="goal-name">'+g.goal+'</span>' : '<span class="goal-none">'+g.goal+'</span>';
+    var urlShort = g.url.replace('https://','').replace(/\?.*/,'…');
+    var btn = g.has ? '<button class="goal-btn '+st+'" onclick="cycleGoal(\''+g.id+'\',this)">'+lbl+'</button>' : '<span style="color:var(--faint)">—</span>';
+    return '<tr><td>'+g.emoji+' '+g.svcLabel+'</td><td style="color:var(--text);white-space:nowrap">'+g.event+'</td>' +
+      '<td>'+nameHtml+'</td>' +
+      '<td><span class="goal-url" title="'+g.url+'" onclick="openDbgUrl(\''+g.url+'\')">'+urlShort+'</span></td>' +
+      '<td style="text-align:center">'+btn+'</td>' +
+      '<td><input class="goal-note" placeholder="Заметка…" value="'+(goalNotes[g.id]||'')+'" oninput="goalNotes[\''+g.id+'\']=this.value"/></td></tr>';
+  }).join('');
+  updateGoalCounts();
+}
+function cycleGoal(id, btn) {
+  var map = {idle:'pass', pass:'fail', fail:'idle'};
+  goalStatuses[id] = map[goalStatuses[id]||'idle'];
+  var st = goalStatuses[id];
+  btn.className = 'goal-btn ' + st;
+  btn.textContent = st==='pass'?'✓ Прошло':st==='fail'?'✗ Упало':'— Не проверено';
+  updateGoalCounts(); updateGoalNav();
+}
+function updateGoalCounts() {
+  var ch = GOALS_DATA.filter(function(g){ return g.has; });
+  document.getElementById('g-pass').textContent = ch.filter(function(g){ return goalStatuses[g.id]==='pass'; }).length + ' OK';
+  document.getElementById('g-fail').textContent = ch.filter(function(g){ return goalStatuses[g.id]==='fail'; }).length + ' Fail';
+  document.getElementById('g-idle').textContent = ch.filter(function(g){ return goalStatuses[g.id]==='idle'; }).length + ' —';
+}
+function updateGoalNav() {
+  var f = GOALS_DATA.filter(function(g){ return goalStatuses[g.id]==='fail'; }).length;
+  var el = document.getElementById('nc-goals');
+  el.textContent = f || '0'; el.className = f>0 ? 'ni-count bad' : 'ni-count';
+}
+function filterGoals(s, btn) {
+  goalsFilter = s;
+  document.querySelectorAll('.btn-ghost').forEach(function(b){ if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes('filterGoals')) b.classList.remove('gf-active'); });
+  btn.classList.add('gf-active');
+  renderGoals();
+}
+function markAllGoals(st) {
+  GOALS_DATA.filter(function(g){ return (goalsFilter==='all'||g.svc===goalsFilter)&&g.has; })
+            .forEach(function(g){ goalStatuses[g.id]=st; });
+  renderGoals(); updateGoalNav();
+}
+function resetGoals() {
+  GOALS_DATA.forEach(function(g){ goalStatuses[g.id]='idle'; goalNotes[g.id]=''; });
+  renderGoals(); updateGoalNav();
+}
+function addYmDebug(u) {
+  // убираем уже существующий _ym_debug если есть
+  u = u.replace(/([?&])_ym_debug=\d*/g, '').replace(/[?&]$/, '');
+  // если в URL уже есть ? — используем &, иначе ?
+  var sep = u.includes('?') ? '&' : '?';
+  return u + sep + '_ym_debug=2';
+}
+function openDbgUrl(u) { window.open(addYmDebug(u), '_blank'); }
+function exportGoals() {
+  var rows = ['Сервис,Событие,Цель,Статус,Заметка'].concat(
+    GOALS_DATA.map(function(g){ return '"'+g.svcLabel+'","'+g.event+'","'+g.goal+'","'+goalStatuses[g.id]+'","'+(goalNotes[g.id]||'').replace(/"/g,"'")+'"'; })
+  ).join('\n');
+  var a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows); a.download='goals.csv'; a.click();
+}
+
+// ── CHECKLIST ─────────────────────────────────────────────────────────────
+function initChecklist() {
+  CHECKLIST.forEach(function(c){ clStatuses[c.id]='idle'; clNotes[c.id]=''; });
+  renderChecklist();
+}
+function renderChecklist() {
+  var body = document.getElementById('cl-body');
+  if (!body) return;
+  var cats = [];
+  CHECKLIST.forEach(function(c){ if(cats.indexOf(c.cat)<0) cats.push(c.cat); });
+  var html = cats.map(function(cat) {
+    var items = CHECKLIST.filter(function(c){ return c.cat===cat; });
+    return '<div class="cl-cat">'+cat+'</div><div class="cl-group">' +
+      items.map(function(c) {
+        var st = clStatuses[c.id] || 'idle';
+        var dotCls = st==='pass'?'cl-dot pass':st==='fail'?'cl-dot fail':'cl-dot';
+        var dotTxt = st==='pass'?'✓':st==='fail'?'✗':'';
+        return '<div class="cl-item">' +
+          '<div class="'+dotCls+'" onclick="toggleCl(\''+c.id+'\')">'+dotTxt+'</div>' +
+          '<span class="cl-text">'+c.text+(c.auto?'<span class="cl-auto">авто</span>':'')+'</span>' +
+          '<div class="cl-btns">' +
+          '<button class="cl-btn cl-ok"  onclick="setCl(\''+c.id+'\',\'pass\')">✓</button>' +
+          '<button class="cl-btn cl-ng"  onclick="setCl(\''+c.id+'\',\'fail\')">✗</button>' +
+          '<input class="cl-note" placeholder="заметка" value="'+(clNotes[c.id]||'')+'" oninput="clNotes[\''+c.id+'\']=this.value"/>' +
+          '</div></div>';
+      }).join('') + '</div>';
+  }).join('');
+
+  var pass = CHECKLIST.filter(function(c){ return clStatuses[c.id]==='pass'; }).length;
+  var fail = CHECKLIST.filter(function(c){ return clStatuses[c.id]==='fail'; }).length;
+  var idle = CHECKLIST.filter(function(c){ return clStatuses[c.id]==='idle'; }).length;
+  html += '<div class="cl-summary">' +
+    '<span class="badge badge-pass">'+pass+' OK</span>' +
+    '<span class="badge badge-fail">'+fail+' Fail</span>' +
+    '<span class="badge badge-idle">'+idle+' —</span></div>';
+
+  body.innerHTML = html;
+  updateClNav();
+}
+function toggleCl(id) {
+  var map = {idle:'pass', pass:'fail', fail:'idle'};
+  clStatuses[id] = map[clStatuses[id]||'idle'];
+  renderChecklist();
+}
+function setCl(id, st) { clStatuses[id]=st; renderChecklist(); }
+function resetChecklist() { CHECKLIST.forEach(function(c){ clStatuses[c.id]='idle'; clNotes[c.id]=''; }); renderChecklist(); }
+function updateClNav() {
+  var f = CHECKLIST.filter(function(c){ return clStatuses[c.id]==='fail'; }).length;
+  var ok = CHECKLIST.filter(function(c){ return clStatuses[c.id]==='pass'; }).length;
+  var nd = CHECKLIST.filter(function(c){ return clStatuses[c.id]==='idle'; }).length;
+  var el = document.getElementById('nc-cl');
+  el.textContent = f||'0'; el.className = f>0 ? 'ni-count bad' : 'ni-count';
+  document.getElementById('cl-ok').textContent = ok+' OK';
+  document.getElementById('cl-ng').textContent = f+' Fail';
+  document.getElementById('cl-nd').textContent = nd+' —';
+}
+function exportChecklist() {
+  var rows = ['Пункт,Категория,Авто,Статус,Заметка'].concat(
+    CHECKLIST.map(function(c){ return '"'+c.text+'","'+c.cat+'",'+(c.auto?'да':'нет')+',"'+clStatuses[c.id]+'","'+(clNotes[c.id]||'').replace(/"/g,"'")+'"'; })
+  ).join('\n');
+  var a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows); a.download='checklist.csv'; a.click();
+}
+
+// ── CARD / PASS HELPERS ───────────────────────────────────────────────────
+function fmtCard(el) { var v=el.value.replace(/\D/g,'').slice(0,16); el.value=v.replace(/(.{4})/g,'$1 ').trim(); }
+function fmtExp(el)  { var v=el.value.replace(/\D/g,'').slice(0,4); if(v.length>=3) v=v.slice(0,2)+' / '+v.slice(2); el.value=v; }
+function togglePass() {
+  var inp=document.getElementById('cfg-acc-pass');
+  var eye=document.getElementById('pass-eye');
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  eye.textContent = inp.type==='password' ? '👁' : '🙈';
+}
+function fillCard(num, prov) {
+  document.getElementById('cfg-card-num').value  = num;
+  document.getElementById('cfg-card-exp').value  = '12 / 28';
+  document.getElementById('cfg-card-cvc').value  = '123';
+  document.getElementById('cfg-card-name').value = 'Test User';
+  document.getElementById('cfg-card-prov').value = prov;
+}
+function clearCard() {
+  ['cfg-card-num','cfg-card-exp','cfg-card-cvc'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('cfg-card-prov').value='stripe';
+}
+
+// ── CONFIG / MISC ─────────────────────────────────────────────────────────
+function applyConfig() {
+  document.getElementById('url-display').textContent = getLandingUrl();
+  var btn = document.getElementById('btn-run');
+  btn.textContent = '✓ Сохранено';
+  setTimeout(function(){ btn.textContent = '▶ Запустить'; }, 1500);
+}
+function exportResults() {
+  if (!results.length) { alert('Нет данных'); return; }
+  var csv = ['Тест,Сьют,Статус,Браузер,Время(мс)'].concat(
+    results.map(function(r){ return '"'+r.name+'","'+r.suite+'",'+r.status+','+r.browser+','+r.dur; })
+  ).join('\n');
+  var a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='results.csv'; a.click();
+}
+function copyConfig() {
+  var c = "const{defineConfig,devices}=require('@playwright/test');\nmodule.exports=defineConfig({\n  testDir:'./tests',timeout:30000,retries:1,workers:4,\n  reporter:[['html',{outputFolder:'report'}]],\n  use:{headless:true,video:'retain-on-failure'},\n  projects:[\n    {name:'chromium',use:{...devices['Desktop Chrome']}},\n    {name:'yandex',use:{...devices['Desktop Chrome'],executablePath:'C:/Users/user/AppData/Local/Yandex/YandexBrowser/Application/browser.exe'}},\n    {name:'iphone',use:{...devices['iPhone 13']}},\n    {name:'pixel',use:{...devices['Pixel 5']}},\n  ],\n});";
+  navigator.clipboard.writeText(c).then(function(){ alert('Конфиг скопирован!'); }).catch(function(){ prompt('Скопируйте:',c); });
+}
+function copyYaml() {
+  var y = "on:\n  schedule: [{cron:'0 3 * * *'}]\n  push: {branches:[main]}\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npm ci && npx playwright install\n      - run: npx playwright test\n        env:\n          LANDING_URL: ${{ vars.LANDING_URL }}";
+  navigator.clipboard.writeText(y).then(function(){ alert('YAML скопирован!'); }).catch(function(){ prompt('',y); });
+}
+function addSchedule() {
+  var cron=prompt('Cron-выражение','0 3 * * *');
+  var name=prompt('Название','Прогон');
+  if (!cron||!name) return;
+  var d=document.createElement('div'); d.className='sch-row';
+  d.innerHTML='<div><div style="font-size:13px;color:var(--text)">'+name+'</div><div style="font-size:11px;color:var(--muted)">cron: '+cron+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge badge-pass">Активен</span><button class="btn btn-ghost" style="height:24px;font-size:11px;color:var(--red)" onclick="this.closest(\'.sch-row\').remove()">×</button></div>';
+  document.getElementById('sch-list').appendChild(d);
+}
+
+// ── SNAPSHOTS ─────────────────────────────────────────────────────────────
+var SNAP_SLOTS = [
+  {id:'snap-desktop', label:'Desktop · 1440×900'},
+  {id:'snap-mobile',  label:'Mobile · 375×812'},
+  {id:'snap-custom1', label:'Доп. скриншот 1'},
+  {id:'snap-custom2', label:'Доп. скриншот 2'},
+];
+var snapData = {}; // id → {src, status, note}
+
+function initSnapshots() {
+  SNAP_SLOTS.forEach(function(s){ snapData[s.id] = {src:null, status:'idle', note:''}; });
+  renderSnapGrid();
+}
+
+function renderSnapGrid() {
+  var grid = document.getElementById('snap-grid');
+  if (!grid) return;
+  grid.innerHTML = SNAP_SLOTS.map(function(s) {
+    var d = snapData[s.id];
+    var statusBadge = d.status==='ok' ? '<span class="badge badge-pass" style="font-size:10px">✓ OK</span>'
+                    : d.status==='fail' ? '<span class="badge badge-fail" style="font-size:10px">✗ Проблема</span>'
+                    : '';
+    return '<div class="snap-upload-card'+(d.src?' has-image':'')+'" id="card-'+s.id+'"' +
+      ' ondragover="snapDragOver(event,\''+s.id+'\')"' +
+      ' ondragleave="snapDragLeave(\''+s.id+'\')"' +
+      ' ondrop="snapDrop(event,\''+s.id+'\')">' +
+      '<div class="snap-upload-head">' +
+        '<input type="text" value="'+s.label+'" placeholder="Название" oninput="SNAP_SLOTS.find(function(x){return x.id===\''+s.id+'\'}).label=this.value"/>' +
+        statusBadge +
+      '</div>' +
+      '<div class="snap-preview-area" onclick="snapClick(\''+s.id+'\')" title="Нажмите или перетащите файл">' +
+        (d.src
+          ? '<img src="'+d.src+'" alt="снэпшот"/>'
+          : '<div class="snap-placeholder"><div class="snap-placeholder-icon">⊡</div><div>Нажмите или перетащите PNG/JPG</div></div>'
+        ) +
+      '</div>' +
+      '<div class="snap-status-row">' +
+        '<button class="snap-status-btn snap-ok"  onclick="setSnapStatus(\''+s.id+'\',\'ok\')">✓ OK</button>' +
+        '<button class="snap-status-btn snap-ng"  onclick="setSnapStatus(\''+s.id+'\',\'fail\')">✗ Проблема</button>' +
+        '<button class="snap-status-btn snap-clr" onclick="clearSnap(\''+s.id+'\')">× Удалить</button>' +
+        '<input class="snap-note" placeholder="Заметка…" value="'+(d.note||'')+'" oninput="snapData[\''+s.id+'\'].note=this.value"/>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  updateSnapCount();
+}
+
+function snapClick(id) {
+  var inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = function() { if (inp.files[0]) loadSnapFile(id, inp.files[0]); };
+  inp.click();
+}
+
+function snapDragOver(e, id) {
+  e.preventDefault();
+  document.getElementById('card-'+id).classList.add('dragover');
+}
+function snapDragLeave(id) {
+  document.getElementById('card-'+id).classList.remove('dragover');
+}
+function snapDrop(e, id) {
+  e.preventDefault();
+  document.getElementById('card-'+id).classList.remove('dragover');
+  var file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadSnapFile(id, file);
+}
+
+function loadSnapFile(id, file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    snapData[id].src = e.target.result;
+    snapData[id].status = 'idle';
+    renderSnapGrid();
+  };
+  reader.readAsDataURL(file);
+}
+
+function setSnapStatus(id, st) {
+  snapData[id].status = st;
+  renderSnapGrid();
+}
+
+function clearSnap(id) {
+  snapData[id] = {src:null, status:'idle', note:''};
+  renderSnapGrid();
+}
+
+function clearSnapshots() {
+  SNAP_SLOTS.forEach(function(s){ snapData[s.id] = {src:null, status:'idle', note:''}; });
+  renderSnapGrid();
+}
+
+function updateSnapCount() {
+  var filled = SNAP_SLOTS.filter(function(s){ return snapData[s.id].src; }).length;
+  var ok     = SNAP_SLOTS.filter(function(s){ return snapData[s.id].status==='ok'; }).length;
+  var el = document.getElementById('snap-count');
+  if (el) el.textContent = filled + ' загружено · ' + ok + ' OK';
+}
+
+// ── SMS MODAL ─────────────────────────────────────────────────────────────
+var smsResolve = null;
+var smsTimerInterval = null;
+
+function waitForSmsCode(stepLabel) {
+  return new Promise(function(resolve) {
+    smsResolve = resolve;
+
+    // показываем модалку
+    var modal = document.getElementById('sms-modal');
+    var input = document.getElementById('sms-code-input');
+    var desc  = document.getElementById('sms-modal-desc');
+    desc.textContent = 'Шаг: «' + stepLabel + '». Банк отправил SMS с кодом подтверждения. Введите код ниже.';
+    input.value = '';
+    modal.classList.add('active');
+    setTimeout(function(){ input.focus(); }, 100);
+
+    // таймер 2 минуты
+    var seconds = 120;
+    function tick() {
+      var m = Math.floor(seconds / 60);
+      var s = seconds % 60;
+      document.getElementById('sms-timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (seconds <= 0) {
+        clearInterval(smsTimerInterval);
+        document.getElementById('sms-timer').textContent = 'Время вышло';
+        skipSmsCode();
+      }
+      seconds--;
+    }
+    tick();
+    smsTimerInterval = setInterval(tick, 1000);
+  });
+}
+
+function confirmSmsCode() {
+  var input = document.getElementById('sms-code-input');
+  var code  = input.value.trim();
+  if (!code || code.length < 4) {
+    input.style.borderColor = 'var(--red)';
+    setTimeout(function(){ input.style.borderColor = ''; }, 800);
+    return;
+  }
+  closeSmsModal(code);
+}
+
+function skipSmsCode() {
+  closeSmsModal(null);
+}
+
+function closeSmsModal(code) {
+  clearInterval(smsTimerInterval);
+  smsTimerInterval = null;
+  document.getElementById('sms-modal').classList.remove('active');
+  document.getElementById('sms-code-input').value = '';
+  document.getElementById('sms-timer').textContent = '2:00';
+  if (smsResolve) { smsResolve(code); smsResolve = null; }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+initGoals();
+initChecklist();
+initSnapshots();
+</script>
+</body>
+</html>
