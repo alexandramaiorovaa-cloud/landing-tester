@@ -2,24 +2,24 @@
 
 module.exports = {
 
-  landingUrl: 'https://www.kinopoisk.ru/special/new/?type=cpa_kp_45_360_perf&promocode=RQE6KXL588',
+  landingUrl: '',
   ctaText:    '',
 
   // 'chromium' | 'yandex' | 'iphone' | 'pixel'
   device: 'chromium',
 
   account: {
-    login:     'yndx-alexandra-mai-j69wfs',
-    email:     'yndx-alexandra-mai-j69wfs@ya.ru',
-    password:  'icP9.Ba20',
+    login:     '',
+    email:     '',
+    password:  '',
     loginMode: 'email',  // 'login' (логин/username) | 'email' (почта)
     type:      'novice',
   },
 
   card: {
     number:   '2200702165121497',
-    expiry:   '05/36',
-    cvc:      '735',
+    expiry:   '05/78',
+    cvc:      '123',
     scenario: 'sms', //'sms' //'oneclick'
   },
 
