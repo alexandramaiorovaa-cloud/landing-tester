@@ -57,7 +57,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* STATS */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .stat-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
 .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--card-accent,var(--faint));opacity:.6}
 .sc-label{font-size:11px;color:var(--muted);margin-bottom:6px}
@@ -284,7 +284,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="stat-card stat-green"><div class="sc-label">Прошли</div><div class="sc-val" id="s-pass">—</div><div class="sc-sub">из <span id="s-total">0</span> шагов</div></div>
     <div class="stat-card stat-red"><div class="sc-label">Упали</div><div class="sc-val" id="s-fail">—</div><div class="sc-sub">требуют внимания</div></div>
     <div class="stat-card stat-amber"><div class="sc-label">Время прогона</div><div class="sc-val" id="s-time">—</div><div class="sc-sub">секунд</div></div>
-    <div class="stat-card stat-blue"><div class="sc-label">Браузеров</div><div class="sc-val" id="s-browsers">—</div><div class="sc-sub">параллельно</div></div>
   </div>
   <div class="card">
     <div class="card-head"><h3>Прогресс выполнения</h3><span class="chip" id="prog-chip">Не запущено</span></div>
@@ -498,28 +497,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div class="cfg-field"><label>Платёжная система</label>
           <select id="cfg-card-prov">
             <option value="tinkoff">Успех</option>
-            <option value="tinkoff-fail">Отказ банка</option>
-            <option value="tinkoff-sms">SMS-подтверждение</option>
-            <option value="yookassa">Успех — Mastercard</option>
-            <option value="yookassa-fail">Отказ — Mastercard</option>
-            <option value="yookassa-sms">SMS-подтверждение — Mastercard</option>
-            <option value="custom">Другое</option>
           </select>
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-ghost" style="font-size:11px" onclick="fillCard('4377 7378 3661 0000','tinkoff')">↙ Оплата успех</button>
-        <button class="btn btn-ghost" style="font-size:11px" onclick="fillCard('4377 7378 3661 0004','tinkoff-fail')">↙ Оплата отказ</button>
-        <button class="btn btn-ghost" style="font-size:11px" onclick="fillCard('4377 7378 3661 0018','tinkoff-sms')">↙ Оплата с SMS</button>
         <button class="btn btn-ghost" style="font-size:11px" onclick="clearCard()">× Очистить</button>
-      </div>
-      <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r2);font-size:11px;color:var(--muted);line-height:1.8">
-        <span style="color:var(--green)">4377 7378 3661 0000</span> — успех &nbsp;·&nbsp;
-        <span style="color:var(--red)">4377 7378 3661 0004</span> — отказ &nbsp;·&nbsp;
-        <span style="color:var(--amber)">4377 7378 3661 0018</span> — SMS-подтверждение<br>
-        <span style="color:var(--green)">5555 5555 5555 4444</span> — успех &nbsp;·&nbsp;
-        <span style="color:var(--red)">5555 5555 5555 4473</span> — отказ &nbsp;·&nbsp;
-        <span style="color:var(--amber)">5555 5555 5555 4457</span> — SMS-подтверждение
       </div>
     </div>
   </div>
