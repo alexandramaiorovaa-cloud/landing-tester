@@ -262,6 +262,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="nav-item active" onclick="nav('dashboard',this)"><span class="ni-icon">◈</span>Дашборд</div>
   <div class="nav-item" onclick="nav('results',this)"><span class="ni-icon">≡</span>Результаты<span class="ni-count" id="nc-results">0</span></div>
   <div class="nav-item" onclick="nav('visual',this)"><span class="ni-icon">⊡</span>Визуальный diff</div>
+  <div class="nav-item" onclick="nav('vitals',this)"><span class="ni-icon">◈</span>Web Vitals</div>
   <div class="nav-item" onclick="nav('goals',this)"><span class="ni-icon">◉</span>Цели Метрики<span class="ni-count" id="nc-goals">0</span></div>
   <div class="nav-item" onclick="nav('checklist',this)"><span class="ni-icon">☑</span>Чек-лист<span class="ni-count" id="nc-cl">0</span></div>
   <div class="nav-section">Управление</div>
@@ -343,7 +344,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <!-- VITALS -->
-Метрики появятся после запуска</div></div>
+<div class="page" id="page-vitals">
+  <div class="card">
+    <div class="card-head"><h3>Web Vitals</h3><span class="chip" id="vitals-chip">Не запущено</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="vitals-grid">
+        <div class="empty-state" style="grid-column:span 3"><div class="es-icon">◈</div>Метрики появятся после запуска</div>
+      </div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-head"><h3>Пороговые значения Google</h3></div>
     <div class="card-body">
@@ -1106,7 +1115,10 @@ function renderVitals() {
     {name:'TTI',  unit:'ms', val:rnd(500,4000),  good:3800, bad:7300},
     {name:'FCP',  unit:'ms', val:rnd(300,2000),  good:1800, bad:3000},
     {name:'TTFB', unit:'ms', val:rnd(80,1000),   good:800,  bad:1800},
-  ];    var pct = Math.min(100, Math.round(m.val/m.bad*80));
+  ];
+  var html = metrics.map(function(m) {
+    var cls = m.val <= m.good ? 'good' : m.val <= m.bad ? 'warn' : 'bad';
+    var pct = Math.min(100, Math.round(m.val/m.bad*80));
     return '<div class="vital-card">' +
       '<div class="vital-name">'+m.name+'</div>' +
       '<div class="vital-val v'+cls+'">'+m.val+m.unit+'</div>' +
@@ -1114,6 +1126,10 @@ function renderVitals() {
       '<div class="vital-desc">'+(cls==='good'?'Хорошо':cls==='warn'?'Улучшить':'Плохо')+' · порог '+m.good+m.unit+'</div>' +
       '</div>';
   }).join('');
+  var grid = document.getElementById('vitals-grid');
+  if (grid) { grid.innerHTML = html; }
+  var chip = document.getElementById('vitals-chip');
+  if (chip) { chip.textContent = 'Обновлено'; }
 }
 
 // ── GOALS ─────────────────────────────────────────────────────────────────
